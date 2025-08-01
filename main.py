@@ -19,7 +19,7 @@ try:
     model.export(
         model=model_path,
         format="mlmodel",
-        imgsz=640,
+        imgsz=320,
         half=True,  # Half precision
         nms=True,  # Non-maximum suppression
     )
