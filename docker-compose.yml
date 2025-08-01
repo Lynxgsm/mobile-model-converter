@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mobile-model-converter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mobile-model-converter
+    working_dir: /app
+    volumes:
+      # Mount the current directory to /app in the container
+      - .:/app
+      # Mount models directory for persistent model storage
+      - ./models:/app/models
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    ports:
+      # Expose port 8000 for web applications (if needed)
+      - '8000:8000'
+    # Keep container running for development
+    tty: true
+    stdin_open: true
+    # Alternative: run a specific command
+    # command: ["python3", "your_script.py"]
+
+  # Optional: Add a development service with hot reload
+  mobile-model-converter-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mobile-model-converter-dev
+    working_dir: /app
+    volumes:
+      - .:/app
+      - ./models:/app/models
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+      - ENVIRONMENT=development
+    ports:
+      - '8001:8000'
+    profiles:
+      - dev
+    # For development with auto-restart
+    command: ['python3', '-m', 'http.server', '8000']
