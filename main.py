@@ -1,6 +1,6 @@
 from ultralytics import YOLO
 
-model_path = "./models/best.pt"
+model_path = "./models/detect_damage.pt"
 model = YOLO(model_path).to("cpu")
 
 try:
