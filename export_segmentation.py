@@ -16,6 +16,7 @@ Notes:
 from __future__ import annotations
 
 import argparse
+import platform
 import sys
 from typing import Optional
 
@@ -29,7 +30,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--model",
         type=str,
-        default="./models/detect_damage.pt",
+        default="./models/detect-element.pt",
         help="Path to segmentation model weights (*.pt)",
     )
     parser.add_argument(
@@ -120,7 +121,6 @@ def export_segmentation_model(
     if export_tflite:
         print("Exporting model for Android (TFLite)...")
         export_kwargs = {
-            "model": model_path,
             "format": "tflite",
             "imgsz": imgsz,
             "half": half,
@@ -133,15 +133,19 @@ def export_segmentation_model(
         print("TFLite export completed.")
 
     if export_coreml:
-        print("Exporting model for iOS (Core ML)...")
-        model.export(
-            model=model_path,
-            format="mlmodel",
-            imgsz=imgsz,
-            half=half,
-            nms=nms,
-        )
-        print("Core ML export completed.")
+        if platform.system() != "Darwin":
+            print(
+                "[info] Skipping Core ML export: requires macOS host (not supported inside Linux Docker)."
+            )
+        else:
+            print("Exporting model for iOS (Core ML)...")
+            model.export(
+                format="coreml",
+                imgsz=imgsz,
+                half=half,
+                nms=nms,
+            )
+            print("Core ML export completed.")
 
 
 def main() -> None:

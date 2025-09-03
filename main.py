@@ -1,6 +1,8 @@
+import platform
+
 from ultralytics import YOLO
 
-model_path = "./models/detect_damage.pt"
+model_path = "./models/detect-element.pt"
 model = YOLO(model_path).to("cpu")
 
 try:
@@ -15,16 +17,20 @@ try:
     print("Android export completed.")
 
     # Export for iOS (Core ML)
-    print("Exporting model for iOS (Core ML)...")
-    model.export(
-        model=model_path,
-        format="mlmodel",
-        imgsz=320,
-        half=True,  # Half precision
-        nms=True,  # Non-maximum suppression
-    )
-    print("iOS export completed.")
+    if platform.system() != "Darwin":
+        print(
+            "Skipping Core ML export: requires macOS host (not supported inside Linux Docker)."
+        )
+    else:
+        print("Exporting model for iOS (Core ML)...")
+        model.export(
+            format="coreml",
+            imgsz=320,
+            half=True,  # Half precision
+            nms=True,  # Non-maximum suppression
+        )
+        print("iOS export completed.")
     # Visualize results
     # model.plot()
 except Exception as e:
-    print("Error during training:", e)
+    print("Error during export:", e)
